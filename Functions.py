@@ -1,6 +1,7 @@
 import numpy as np
+from scipy.stats import norm
+import scipy.integrate as integrate
 
-#CRR Price mainly for american put options since trees are useful for an optimal stopping problem
 def CRRprice(S0, r, sigma, T, M, K, Am=True, Put=True):
     # calculate parameters u, d, q, dt
     dt = T/M
@@ -21,7 +22,7 @@ def CRRprice(S0, r, sigma, T, M, K, Am=True, Put=True):
     V = np.zeros((M+1, M+1))
 
     if Put == True:
-     V[:, -1] = np.maximum(K - S[:, -1], 0)
+        V[:, -1] = np.maximum(K - S[:, -1], 0)
     # calculate european or american price process
         if Am == False:
             for i in range(M, 0, -1):
@@ -33,28 +34,37 @@ def CRRprice(S0, r, sigma, T, M, K, Am=True, Put=True):
         else:
          print("ERROR: EU must be either True or False")
     # Finally the price of the Call, which is equivalent for American and European options
-     elif Put == False:
+    elif Put == False:
         V[:, -1] = np.maximum(S[:, -1] - K, 0)
         for i in range(M, 0, -1):
             V[0:i, i - 1] = (q * V[0:i, i] + (1 - q) * V[1:i + 1, i]) * np.exp(-r * dt)
-     else:
+    else:
         print("ERROR: Call must be either True or False")
 
-     V0 = V[0, 0]
-     print("Price of the option at time 0 is: " + str(V0))
+    V0 = V[0, 0]
     # output the Stock price process, fair option price process and the price at time 0
-     return [V0, V, S]
+    return [V0, V, S]
 
-# a test example
-S0 = 100
-r = 0.06
-sigma = 0.2
-T = 2
-M = 100
-K = 120
-Am = True
-Put = True
 
-CRRresults = CRRprice(S0, r, sigma, T, M, K, Am, Put)
-price = CRRresults[0]
-print("Price of the option at time 0 is: " + str(price))
+def BlackScholes(St, T, K, sigma, r, t=0, Call=True):
+    d1 = (np.log(St/K)+ (r+0.5*(sigma**2)) * (T-t)) / sigma * np.sqrt(T-t)
+    d2 = d1 - sigma * np.sqrt(T-t)
+
+    if Call == True:
+        Vt = St * norm.cdf(d1) - K * np.exp(-r*(T-t)) * norm.cdf(d2)
+    elif Call == False:
+        Vt = K * np.exp(-r*(T-t)) * norm.cdf(-d2) - St * norm.cdf(-d1)
+    else:
+        print("ERROR: Call must be either True or False")
+    return Vt
+
+
+# Prcing by the Integration formula using numerical integration
+def BS_Price_Int(S0, r, sigma, T, payoff):
+    def integrand(x):
+        y = 1 / np.sqrt(2 * np.pi) * payoff(S0 * np.exp((r - 0.5 * sigma ** 2) * T + sigma * np.sqrt(T) * x)) * np.exp(
+            -r * T) * np.exp(-x ** 2 / 2)
+        return y
+
+    V0 = integrate.quad(integrand, -np.inf, np.inf)[0]
+    return V0
