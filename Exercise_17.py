@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from CompFinTutorial.Functions import BlackScholes
 
 
-def BS_EuCall_FFT (S0, r, sigma, T, t, R, N, M, kappa1):
+def BS_EuCall_FFT (S0, r, sigma, T, t, R, N, M, K):
     # first we define the g() function and its components ftilde (laplace transform payoff) and the BS characteristic function
     def ftilde0(z):
         return 1/((z-1)*z)
@@ -15,6 +15,7 @@ def BS_EuCall_FFT (S0, r, sigma, T, t, R, N, M, kappa1):
         return ftilde0(R+ 1j*u) * chi(u - 1j*R)
     # set Delta
     Delta = M/N
+    kappa1 = np.log(np.min(K))
     # define vector x on which the DFT will be performed
     x = np.zeros(N, dtype=complex)
     for i in range(1, N):
@@ -36,29 +37,28 @@ S0 = 100
 r = 0.05
 sigma = 0.2
 T = 1
-R = 1.1 # because we are pricing a call, for put R must be smaller zero
+R = 1.1  # because we are pricing a call, for put R must be smaller zero
 N = 2 ** 11
 M = 50
 t = 0
-kappa1 = np.log(np.min(K))
+K = np.arange(80, 180+0.1, 0.1)
 
 # computing the prices for all the kappas
-result = BS_EuCall_FFT(S0, r, sigma, T, t, R, N, M, kappa1)
+result = BS_EuCall_FFT(S0, r, sigma, T, t, R, N, M, K)
 
-# using simple interpolation to find prices corresponding to desired Strikes K:#
-K = np.arange(80, 180+0.1, 0.1)
+# using simple interpolation to find prices corresponding to desired Strikes K:
 vm = np.interp(K, result[0], result[1])
 
 Vm_bs = np.zeros(1001, dtype=float)
-j=0
+j = 0
 for i in K:
     Vm_bs[j] = BlackScholes(St=S0, T=T, K=i, sigma=sigma, r=r, t=0, Call=True)
-    j=j+1
+    j = j+1
 
 
 # plotting the results to compare fast fourier prices with BS prices
-plt.plot(K, Vm_bs, linewidth = 0.5)
-plt.plot(K, vm, linewidth = 0.5)
+plt.plot(K, Vm_bs, linewidth=0.5)
+plt.plot(K, vm, linewidth=0.5)
 plt.xlabel("Strike K")
 plt.ylabel("Price")
 plt.legend(["BS-formula", "Fast Fourier algorithm"])

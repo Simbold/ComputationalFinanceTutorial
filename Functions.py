@@ -68,3 +68,33 @@ def BS_Price_Int(S0, r, sigma, T, payoff):
 
     V0 = integrate.quad(integrand, -np.inf, np.inf)[0]
     return V0
+
+
+def BS_EuCall_FFT (S0, r, sigma, T, K, t, R, N, M):
+    # first we define the g() function and its components ftilde (laplace transform payoff) and the BS characteristic function
+    def ftilde0(z):
+        return 1/((z-1)*z)
+
+    def chi(u):
+        return np.exp(1j * u * (np.log(S0) + r * T) - (1j * u + u ** 2) * sigma ** 2 / 2 * T)
+
+    def g(u):
+        return ftilde0(R+ 1j*u) * chi(u - 1j*R)
+    # set Delta
+    Delta = M/N
+    kappa1 = np.log(np.min(K))
+    # define vector x on which the DFT will be performed
+    x = np.zeros(N, dtype=complex)
+    for i in range(1, N):
+        x[i-1] = g((i - 0.5)*Delta) * Delta * np.exp(-1j*(i-1)*Delta*kappa1)
+
+    # perform DFT using the efficient FFT algorithm
+    xhat = np.fft.fft(x)
+    # compute vector kappa
+    kappa_m = kappa1 + (np.arange(1, N+1) - 1 ) * 2 * np.pi / M
+
+    Km = np.exp(kappa_m)
+    # finally compute the option prices
+    Vmkappa = (np.exp(-r*(T-t) + (1-R)*kappa_m))/np.pi * np.real(xhat*np.exp(-1j * Delta * kappa_m / 2))
+    vt = np.interp(K, Km, Vmkappa)
+    return vt
