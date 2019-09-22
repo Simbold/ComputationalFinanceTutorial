@@ -98,3 +98,13 @@ def BS_EuCall_FFT (S0, r, sigma, T, K, t, R, N, M):
     Vmkappa = (np.exp(-r*(T-t) + (1-R)*kappa_m))/np.pi * np.real(xhat*np.exp(-1j * Delta * kappa_m / 2))
     vt = np.interp(K, Km, Vmkappa)
     return vt
+
+
+def Eu_Option_BS_MC(S0, r, sigma, K, T, N, payoff, alpha=0.05):
+    z = np.random.normal(0, 1, N)
+    paths = S0 * np.exp((r - 0.5 * sigma ** 2) * T + sigma * np.sqrt(T) * z)
+    V0 = np.exp(-r * T) * np.mean(payoff(paths))
+    var = np.var(payoff(paths), ddof=1)
+    ci = [V0 - norm.isf(alpha/2) * np.sqrt(var / N), V0 + norm.isf(alpha/2) * np.sqrt(var / N)]
+    epsilon = norm.isf(alpha/2) * np.sqrt(var / N)
+    return [V0, ci, epsilon]
