@@ -108,3 +108,35 @@ def Eu_Option_BS_MC(S0, r, sigma, K, T, N, payoff, alpha=0.05):
     ci = [V0 - norm.isf(alpha/2) * np.sqrt(var / N), V0 + norm.isf(alpha/2) * np.sqrt(var / N)]
     epsilon = norm.isf(alpha/2) * np.sqrt(var / N)
     return [V0, ci, epsilon]
+
+def SimPath_Ito_Euler(X0, a, b, T, m, N):
+    Dt = T/m
+    paths = np.zeros((N, m+1), dtype=float)
+    t = np.zeros(m + 1, dtype=float)
+    paths[:, 0] = X0
+    for i in range(1, m+1):
+        t[i] = t[i-1] + Dt
+        DW = np.sqrt(Dt) * np.random.normal(loc=0, scale=1, size=N)
+        paths[:, i] = paths[:, i-1] + a(paths[:, i-1], t[i-1]) * Dt + b(paths[:, i-1], t[i-1]) * DW
+    return paths
+
+
+
+def Heston_PCall_Laplace (S0, r, nu0, kappa, lamb, sigma_tilde,T, K, R, p):
+    def integrand(u):
+        def d(u):
+            return np.sqrt(lamb ** 2+sigma_tilde ** 2 * ( 1j * u+u ** 2))
+        # characteristic function for the Heston model
+        def nu(u, x, nu0):
+            y1 = np.exp( 1j * u * (x + r * (T)))
+            y2 = ((np.exp(lamb* (T) / 2)) / (np.cosh(d(u) * (T) / 2)+ lamb * np.sinh(d(u) * (T) / 2) / d(u))) ** (2 * kappa / sigma_tilde ** 2)
+            y3 = np.exp(-nu0 * (( 1j * u+u ** 2) * np.sinh(d(u) * (T) / 2) / d(u)) / (np.cosh(d(u) * (T) / 2)+ lamb * np.sinh(d(u) * (T) / 2) / d(u)))
+            return y1*y2*y3
+
+        def ftilde(z):
+            return (K ** (1 - z / p) * p) / (z * (z - p)) # laplace transform for powercall payoff
+
+        return np.real(ftilde(u*1j + R) * nu(u - 1j*R, np.log(S0), nu0))
+
+    V0 = (np.exp(-r*T)/np.pi) * integrate.quad(integrand, 0, 100)[0] # cant use np.inf due to overflow, but 100 should be more than enough
+    return V0
