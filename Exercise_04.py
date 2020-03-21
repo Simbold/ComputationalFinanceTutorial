@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def CRRprice (spot, strike, r, sigma, mt, m, american_exercise=False, option_type="put"):
+def CRRprice (spot, strike, r, sigma, mt, m, american_exercise=True, option_type="put"):
     dt = mt / m
     b = 0.5 * (np.exp(-r * dt) + np.exp((r + sigma ** 2) * dt))
     u = b + np.sqrt(b ** 2 - 1)

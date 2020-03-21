@@ -43,4 +43,4 @@ nu0 = X0
 R = 1.5
 V0_LP = Heston_PCall_Laplace(S0, r, nu0, kappa, lamb, sigma_tilde, T, K, R, p)
 print("Price of the European power Call with strike price 90 and p=1.2 in the Heston model calculated by MC methods is: "+
-      str(round(V0_MC, 5)) + ", compared to: " + str(round(V0_LP, 5)) + " when calculated via the laplace transform/characteristic function approach:")
+      str(round(V0_MC, 5)) + ", compared to: " + str(round(V0_LP, 5)) + " when calculated via the laplace transform/characteristic function approach")

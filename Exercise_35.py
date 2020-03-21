@@ -76,7 +76,7 @@ K = 100
 M = 500
 crr_price = np.zeros(len(S))
 for i in range(0, len(S)):
-    crr_price[i] = CRRprice(S[i], r, sigma, T, M, K, Am=True, Put=True)[0]
+    crr_price[i] =CRRprice (S[i], K, r, sigma, T, m, american_exercise=True, option_type="put")
 
 plt.plot(S, V0, linewidth=1)
 plt.plot(S, crr_price, ".", linewidth=0.3)
