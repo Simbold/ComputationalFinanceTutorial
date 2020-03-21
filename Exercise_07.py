@@ -65,22 +65,35 @@ t = 0
 V0_altcond = np.zeros(201, dtype=float)
 V0_CRR = np.zeros(201, dtype=float)
 V0_BS = np.zeros(201, dtype=float)
-for i in range(70, 200):
+for i in range(70, 201):
     V0_altcond[i] = CRRprice_altcond(S0, r, sigma, T, M , K = i, Am = Am, Put = Put)[0]
     V0_CRR[i] = CRRprice(S0, r, sigma, T, M, K=i, Am = False, Put= Put)[0]
     V0_BS[i] = BlackScholes(St, T, K=i, sigma=sigma, r=r, t=t, Call=Call)
 
-
+# using error
 error_altcond = V0_BS - V0_altcond
 error_og = V0_BS - V0_CRR
 
 x = np.arange(1, len(V0_altcond)+1)
+plt.figure(1)
 plt.plot(x[70:201], error_altcond[70:201], linewidth = 0.5)
 plt.plot(x[70:201], error_og[70:201], linewidth = 0.5)
 plt.xlabel("Strike price")
 plt.ylabel("Deveations from 'real' BS-Price")
 plt.title("Alternatice Binomial Model (Price evolving around Strike Price")
 plt.legend(["Error for alternative conditions", "Error for original conditions"])
+
+# using absolute error
+
+error_altcond = abs(V0_BS - V0_altcond)
+error_og = abs(V0_BS - V0_CRR)
+
+x = np.arange(1, len(V0_altcond)+1)
+plt.figure(2)
+plt.plot(x[70:201], error_altcond[70:201], linewidth = 0.5)
+plt.plot(x[70:201], error_og[70:201], linewidth = 0.5)
+plt.xlabel("Strike price")
+plt.ylabel("Deveations from 'real' BS-Price")
+plt.title("Alternatice Binomial Model (Price evolving around Strike Price")
+plt.legend(["Absolute error for alternative conditions", "Absolute error for original conditions"])
 plt.show()
-
-

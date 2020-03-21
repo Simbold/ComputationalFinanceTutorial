@@ -17,10 +17,14 @@ def BS_EuCall_FiDi_Explicit(r, sigma, a, b, m, nu_max, T, K):
 
     w[0] = 0 # lower boundary stays always at zero since this is a call
     # question: which boundary condition in the 2 first "corners"?
-    for i in range(1, nu_max):
-        w[1:-1] = lamb*w[0:m-1] + (1-2*lamb)*w[1:m] + lamb*w[2:m+1]
-        # boundary condition (upper bound) ie. x uper bound is b and t always takes the value of the time step which is currently computed
-        w[-1] = np.exp(0.5*(q+1)*b + (0.5*(q+1))**2 * t[i]) - np.exp(0.5*(q-1)*b + (0.5*(q-1))**2 * t[i]) # note that t starts with index zero but loop starts at 1 so this is realy already t+1
+    for i in range(1, nu_max + 1):
+        t = i * dt
+        # explicit fidi scheme
+        w[1:-1] = lamb * w[0:m - 1] + (1 - 2 * lamb) * w[1:m] + lamb * w[2:m + 1]
+        # boundary condition of the call
+        w[-1] = np.exp(0.5 * (q + 1) * b + (0.5 * (q + 1)) ** 2 * t) - np.exp(
+            0.5 * (q - 1) * b + (0.5 * (q - 1)) ** 2 * t)
+
     S = K * np.exp(x)
     V0 = K* w*np.exp(-(q-1)*x/2 - sigma**2 * T/2 * ((q-1)**2 /4 +q))
     return [V0, S]

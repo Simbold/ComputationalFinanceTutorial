@@ -15,7 +15,6 @@ def BinModEUPut(S0, r, sigma, T, K, M):
     qtilde = q * u / np.exp(r * dt)
 
     V0 = K * np.exp(-r * T) * binom.cdf(a - 1, M, q) - S0 * binom.cdf(a - 1, M, qtilde)
-    # print("The Value of the Option at time 0 is: " + str(V0))
     return V0
 
 
@@ -47,7 +46,7 @@ for i in range(10, 501):
 st = 100
 t = 0
 Call = False
-bs_price = BlackScholes(St, T, K, sigma, r, t, Call)
+bs_price = BlackScholes(st, T, K, sigma, r, t, Call)
 
 # visualizing the convergence of binomial model to the Black Scholes model, note that this is for S0 = K
 # for different Strike prices the convergence looks quite different!

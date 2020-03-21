@@ -32,7 +32,9 @@ R=6
 nu0 = 0.3**2
 kappa=0.3**2
 lamb=2.5
-p=2
+p=1
+test = Heston_PCall_Laplace(50, r, nu0, kappa, lamb, sigma_tilde, T, K, R)
+print(test)
 
 
 V0 = np.zeros(101, dtype=float)

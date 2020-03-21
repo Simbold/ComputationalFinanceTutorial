@@ -24,7 +24,6 @@ def tridig_invers(alpha, beta, gamma, b):
     return x
 
 
-
 def BS_EuCall_FiDi_CN(r, sigma, a, b, m, nu_max, T, K):
     dx = (b-a) /m
     dt = sigma**2 * T / (2*nu_max)
@@ -42,7 +41,7 @@ def BS_EuCall_FiDi_CN(r, sigma, a, b, m, nu_max, T, K):
     for i in range(1, nu_max+1):
         w[1:-1] = 0.5 * lamb*w[0:m-1] + (1-lamb)*w[1:m] + 0.5 * lamb*w[2:m+1]
         w[-1] = np.exp(0.5*(q+1) * b + (0.5*(q+1))**2 * t[i]) - np.exp(0.5*(q-1) * b + (0.5*(q-1))**2 * t[i])
-        w[-2] = w[-2] + 0.5*lamb*w[-1] #adjusting for boundary condition
+        w[-2] = w[-2] + 0.5*lamb*w[-1]  # adjusting for boundary condition
 
         w[1:-1] = tridig_invers(alpha, beta, beta, w[1:-1])
     S = K * np.exp(x)
@@ -60,6 +59,9 @@ T = 1
 K = 100
 
 result = BS_EuCall_FiDi_CN(r, sigma, a, b, m, nu_max, T, K)
+fidi_result = np.interp(1, result[1], result[0])  # find the price for the spot via linear interpolation
+print(fidi_result)
+
 V0_FD = result[0]
 S0 = result[1]
 

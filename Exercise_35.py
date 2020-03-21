@@ -1,27 +1,29 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from CompFinTutorial.Functions import BlackScholes, CRRprice
+from CompFinTutorial.Functions import CRRprice
+
 
 # Brennon Schwartz Algortihm
 def brennon_schwartz(alpha, beta, gamma, bs, g_nui):
     # Solution to Ax-b >= 0 ; x >= g and (Ax-b)'(x-g)=0 ; such that solution x satisfies x_i = g_i for i=1,...,k and x_i > g_i for i = k-1,...,n
-    # where alpha, beta and gamma belong to a tridiagonal Matrix
+    #  where A is tridiagonal with values alpha, beta, gamma
     n = len(alpha)
-    alpha_hat = np.zeros(n, dtype=float)
-    b_hat = np.zeros(n, dtype=float)
+    alpha_hat = np.zeros(n, dtype=np.float64)
+    b_hat = np.zeros(n, dtype=np.float64)
 
     alpha_hat[-1] = alpha[-1]
     b_hat[-1] = bs[-1]
 
-    for i in range(n-2, -1, -1):
-        alpha_hat[i] = alpha[i] - beta[i]*gamma[i]/alpha_hat[i+1]
-        b_hat[i] = bs[i] - beta[i] * b_hat[i+1]/alpha_hat[i+1]
+    for i in range(n - 2, -1, -1):
+        alpha_hat[i] = alpha[i] - beta[i] * gamma[i] / alpha_hat[i + 1]
+        b_hat[i] = bs[i] - beta[i] * b_hat[i + 1] / alpha_hat[i + 1]
 
-    x = np.zeros(n, dtype=float)
-    x[0] = np.maximum(b_hat[0]/alpha_hat[0], g_nui[0])
+    x = np.zeros(n, dtype=np.float64)
+    x[0] = np.maximum(b_hat[0] / alpha_hat[0], g_nui[0])
     for i in range(1, n):
-        x[i] = np.maximum((b_hat[i] - gamma[i-1]*x[i-1])/alpha_hat[i], g_nui[i])
+        x[i] = np.maximum((b_hat[i] - gamma[i - 1] * x[i - 1]) / alpha_hat[i], g_nui[i])
     return x
+
 
 def BS_AmPut_FiDi_CN(r, sigma, K, T, a, b, m, nu_max):
     dx = (b-a)/m
@@ -44,7 +46,7 @@ def BS_AmPut_FiDi_CN(r, sigma, K, T, a, b, m, nu_max):
     beta = np.ones(m - 2, dtype=float) * (-0.5 * lamb)
 
     bs = np.zeros(m-1)
-    for i in range(1, nu_max):
+    for i in range(0, nu_max):
         g_nui = g(ttilde[i], xtilde)
 
         w[-1] = g_nui[-1]

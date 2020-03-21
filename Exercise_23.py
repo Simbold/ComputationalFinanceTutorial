@@ -5,8 +5,8 @@ from CompFinTutorial.Functions import BlackScholes
 
 def Eu_Option_BS_MC(S0, r, sigma, K, T, N, payoff, alpha=0.05):
     z = np.random.normal(0, 1, N)
-    paths = np.exp(-r * T) * payoff(S0 * np.exp((r - 0.5 * sigma ** 2) * T + sigma * np.sqrt(T) * z))
-    V0 = np.mean(paths)
+    paths = payoff(S0 * np.exp((r - 0.5 * sigma ** 2) * T + sigma * np.sqrt(T) * z))
+    V0 = np.exp(-r * T) * np.mean(paths)
     var = np.var(paths, ddof=1)
     ci = [V0 - norm.isf(alpha/2) * np.sqrt(var / N), V0 + norm.isf(alpha/2) * np.sqrt(var / N)]
     epsilon = norm.isf(alpha/2) * np.sqrt(var / N)

@@ -7,7 +7,7 @@ def EuCallHedge_BS_MC_FD(St, r, sigma, K, T, N, payoff):
     paths = np.exp(-r*T) / h * (payoff((St+h/2)*np.exp((r-0.5*sigma**2)*T + sigma *np.sqrt(T) * z)) -
                                 payoff((St-h/2)*np.exp((r-0.5*sigma**2)*T + sigma *np.sqrt(T) * z)))
     Delta = np.mean(paths)
-    epsilon = 1.96 * np.sqrt(np.var(paths) / N)
+    epsilon = 1.96 * np.sqrt(np.var(paths, ddof=1) / N)
     ci = [Delta - epsilon, Delta + epsilon]
     return [Delta, ci, epsilon]
 

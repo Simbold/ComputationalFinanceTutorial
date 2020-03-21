@@ -88,7 +88,7 @@ M = 10000
 t = 0
 St = S0
 
-N = 10000
+N = 1000
 m = 1000
 nu0 = 100
 paths = SimPath_Ito_Euler(S0, a, b, T, m, N)
